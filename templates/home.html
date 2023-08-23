@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Book Library</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .books-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .book {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .cover img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .details {
+            margin-top: 10px;
+        }
+        .details h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .details p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .delete-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Book Library</h1>
+    </div>
+    <div class="container">
+        <div class="buttons">
+            <form action="/sort_books" method="POST">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" name="sort_option">
+                    <option value="title">Title</option>
+                    <option value="author">Author</option>
+                </select>
+                <button type="submit">Sort</button>
+            </form>
+            <div>
+                <a href="{{ url_for('add_book') }}" class="delete-button">Add Book</a>
+                <a href="{{ url_for('add_author') }}" class="delete-button">Add Author</a>
+            </div>
+        </div>
+        <form action="/search_books" method="GET">
+            <label for="search-input">Search Books:</label>
+            <input type="text" id="search-input" name="search_query">
+            <button type="submit">Search</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        <div class="books-container">
+            {% if books %}
+            {% for book in books %}
+            <div class="book">
+                <div class="cover">
+                    <img src="{{ book.thumbnail_url }}" alt="Cover Photo">
+                </div>
+                <div class="details">
+                    <h3>{{ book.title }} - {{ book.author }}</h3>
+                    <p>ISBN: {{ book.isbn }}</p>
+                    <p>Publication Year: {{ book.publication_year }}</p>
+                </div>
+                <form action="{{ url_for('delete_book', book_id=book.id) }}" method="POST">
+                    <button type="submit" class="delete-button">Delete Book</button>
+                </form>
+            </div>
+            {% endfor %}
+            {% elif no_results_message %}
+            <p>{{ no_results_message }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
